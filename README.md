@@ -2,9 +2,6 @@
 
 A modern, interactive portfolio website for an AI Engineer and Developer, built with HTML, CSS, JavaScript, and Three.js.
 
-Here is the link to review online (https://ahmad-abdullah-portfolio.windsurf.build/)
-
-
 ## Features
 
 - Interactive 3D particle background using Three.js
