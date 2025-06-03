@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ahmad Abdullah Ahmad | AI Engineer & Developer</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            // Using EmailJS with public key initialization
+            emailjs.init('KfBGjz0CYM4GxY-Jh');
+        })()
+    </script>
+</head>
+<body>
+    <!-- Loading Animation -->
+    <div class="loading-container">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Three.js Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <span>A A A</span>
+        </div>
+        <div class="nav-links">
+            <a href="#home" class="active">Home</a>
+            <a href="#about">About</a>
+            <a href="#skills">Skills</a>
+            <a href="#experience">Experience</a>
+            <a href="#education">Education</a>
+            <a href="#projects">Projects</a>
+            <a href="#contact">Contact</a>
+        </div>
+        <div class="download-cv" style="text-align: right;">
+            <a href="assets/Ahmad_Abdullah_Resume_ATS.html" target="_blank" class="btn">Download CV</a>
+        </div>
+        <div class="hamburger">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home" class="section">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="glitch-text" data-text="Ahmad Abdullah Ahmad">Ahmad Abdullah Ahmad</h1>
+                <h2>AI Engineer & Developer</h2>
+                <p>Building intelligent solutions with code</p>
+                <div class="cta-buttons" style="position: absolute; bottom: 20px; right: 20px;">
+                    <a href="#projects" class="btn primary">View Projects</a>
+                    <a href="#contact" class="btn secondary">Contact Me</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title">About Me</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>Hello, I'm Ahmad Abdullah</h3>
+                    <p>I'm a passionate AI Engineer and Developer with expertise in machine learning, deep learning, and full-stack development. With a background in both theoretical AI concepts and practical implementation, I create innovative solutions that leverage the power of artificial intelligence.</p>
+                    <div class="personal-info">
+                        <div class="info-item">
+                            <span class="info-title">Nationality:</span>
+                            <span class="info-value">Pakistani</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-title">Email:</span>
+                            <span class="info-value">fayyazahmad481w@gmail.com</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-title">WhatsApp:</span>
+                            <span class="info-value">(+92) 3079632007</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-title">Address:</span>
+                            <span class="info-value"><span>Lahore Pakistan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="section">
+        <div class="container">
+            <h2 class="section-title">Skills</h2>
+            
+            <div class="skills-category">
+                <h3>Language Skills</h3>
+                <div class="language-skills">
+                    <div class="language-card">
+                        <h4>Mother Language</h4>
+                        <p>URDU</p>
+                    </div>
+                    <div class="language-card">
+                        <h4>Other Languages</h4>
+                        <p>PANJABI, PUNJABI</p>
+                    </div>
+                    <div class="language-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>UNDERSTANDING</th>
+                                    <th>SPEAKING</th>
+                                    <th>WRITING</th>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <th>Listening | Reading</th>
+                                    <th>Spoken production | Spoken interaction</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ENGLISH</td>
+                                    <td>C1 | C1</td>
+                                    <td>C1 | C1</td>
+                                    <td>C1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="skills-category">
+                <h3>Digital Skills</h3>
+                <div class="digital-skills-grid">
+                    <div class="skill-card">
+                        <i class="fas fa-palette"></i>
+                        <h4>Design</h4>
+                        <p>Graphic design and layout, frontend development</p>
+                    </div>
+                    <div class="skill-card">
+                        <i class="fas fa-code"></i>
+                        <h4>Development</h4>
+                        <p>HTML5, CSS3, JavaScript, React, React_Native, Node.js, Python, fastapi, flask, Java, C++, DSA, Machine Learning,Deep Learning,cutomized chatbot development </p>
+                    </div>
+                    <div class="skill-card">
+                        <i class="fas fa-database"></i>
+                        <h4>Databases</h4>
+                        <p>MongoDB, MySQL, SQL, Oracle, PostgreSQL,prisma,supabase</p>
+                    </div>
+                    <div class="skill-card">
+                        <i class="fas fa-brain"></i>
+                        <h4>AI & ML</h4>
+                        <p>TensorFlow, PyTorch, Scikit-learn, NLP, Computer Vision, Google Colab, keras</p>
+                    </div>
+                    <div class="skill-card">
+                        <i class="fas fa-file-alt"></i>
+                        <h4>Office</h4>
+                        <p>Microsoft Office (Word, Excel, PowerPoint), Google Drive tools</p>
+                    </div>
+                    <div class="skill-card">
+                        <i class="fas fa-microchip"></i>
+                        <h4>LLMs&lang_chains (inleraning)</h4>
+                        <p>Haystack,LangChain,LlamaIndex,PromptLayer,Pinecone,anthropic,huggingface,ollama,openrouter</p>
+                    </div>
+                    <div class="skill-card">
+                        <i class="fas fa-tools"></i>
+                        <h4>Other Tools</h4>
+                        <p>Git, Docker, Cloud platforms (AWS, GCP),vercel,netlify,huggingface</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="section">
+        <div class="container">
+            <h2 class="section-title">Work Experience</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">03/2022 - 05/2022</div>
+                    <div class="timeline-content">
+                        <h3>COUNTER ASSISTANT</h3>
+                        <p class="company">Bahawalnager Pakistan</p>
+                        <ul class="responsibilities">
+                            <li>Handled walk-in queries for customers (15 hours/week)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">10/2022 - 12/2022</div>
+                    <div class="timeline-content">
+                        <h3>VIRTUAL ASSISTANT OF AMAZON STORE </h3>
+                        <p class="company">Florida,US</p>
+                        <ul class="responsibilities">
+                            <li>WITH THE HELP OF AI</li>
+                            <li>Finding products</li>
+                            <li>Maintain profitable profit margin</li>
+                            <li>Sourcing products from third party vendors</li>
+                            <li>Doing Market research to check product's saturation</li>
+                            <li>Being test product on Amazon store or Ebay</li>
+                            <li>Product Listing</li>
+                            <li>Manage whole store</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">06/2023 - 09/2023</div>
+                    <div class="timeline-content">
+                        <h3>GRAPHIC DESIGNER / FREELANCING</h3>
+                        <p class="company">Lahore Pakistan</p>
+                        <ul class="responsibilities">
+                            <li>Taking small projects of clients from Fiverr</li>
+                            <li>Fulfilling the demands of clients</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">03/2022 - 06/2022</div>
+                    <div class="timeline-content">
+                        <h3>SALES AGENT </h3>
+                        <p class="company"> Massachusetts US</p>
+                        <ul class="responsibilities">
+                            <li>making out clients</li>
+                <li>Fulfilling the demands of clients</li>
+                <li>Dealing with local truck Business's with loads</li>
+                <li>Having team up Quick Call Center where i have to call multiple clients to provide them loads or truck as per there need</li>
+            </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education Section -->
+    <section id="education" class="section">
+        <div class="container">
+            <h2 class="section-title">Education & Training</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">03/2020 - 11/2022</div>
+                    <div class="timeline-content">
+                        <h3>INTERMEDIATE / GOVT POST GRADUATE COLLEGE BAHAWALNAGER</h3>
+                        <p class="company">COMPUTER SCIENCE, Pakistan</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">CURRENT</div>
+                    <div class="timeline-content">
+                        <h3>BS(AI) ARTIFICIAL INTELLIGENCE / UMT</h3>
+                        <p class="company">ONGOING, BSAI, Pakistan</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section">
+        <div class="container">
+            <h2 class="section-title">Projects</h2>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="assets/ChatGPT Image Jun 3, 2025, 07_11_56 PM.png" alt="Emotion Recognition">
+                    </div>
+                    <div class="project-content">
+                        <div class="project-text">
+                            <h3>Voice to PPTx generator (Using NLP)</h3>
+                            <div class="project-date">05/2025 - 06/2025</div>
+                            <p>A Python program designed to convert voice to PPTx using NLP without using any api, (only api is use here is to take img from unsplash as accoridng to the topics).</p>
+                            <h4>Program effectively genrates slides</h4>
+                            <ul>
+                                <li>Uses text preprocessing and tokenization</li>
+                                <li>data is managed in such a way that genreted results dont go out of slides margin</li>
+                                <li>(Ahmad Abdullah Ahmad and Muhmmad muzammil ) devs </li>
+                            </ul>
+                        </div>
+                        <div class="button-container">
+                            <a href="https://github.com/yourprofile" class="btn project-link">View Project</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="assets/ChatGPT Image Jun 3, 2025, 07_11_35 PM.png" alt="RFID Door System">
+                    </div>
+                    <div class="project-content">
+                        <div class="project-text">
+                            <h3>Automatic Door Opening and Closing (with the help of tags) using RFID</h3>
+                            <div class="project-date">03/2022 - 06/2022</div>
+                            <p>A secure door system that uses RFID technology to automatically lock and unlock doors.</p>
+                            <h4>Key Features:</h4>
+                            <ol>
+                                <li><strong>Contactless Authentication:</strong> Uses RFID tags or cards for secure and convenient authentication.</li>
+                                <li><strong>Automated Door Control:</strong> Automatically opens or closes the door only when an authorized RFID tag is detected and again after some time the if have set to lock it will be open or locked door.</li>
+                                <li><strong>Increased Security:</strong> Reduces the risk of unauthorized access and provides a secure and efficient way to control door access.</li>
+                            </ol>
+                        </div>
+                        <div class="button-container">
+                            <a href="https://github.com/yourprofile" class="btn project-link">View Project</a>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="assets/ChatGPT Image Jun 3, 2025, 07_11_46 PM.png" alt="Book To podcast converter">
+                    </div>
+                    <div class="project-content">
+                        <div class="project-text">
+                            <h3>Book To podcast converter </h3>
+                            <div class="project-date">04/2025 - 05/2025</div>
+                            <p>An NLP based system that take a book in any datatype of text and perform NLP operations on it and convert it into a podcast.</p>
+                            <h4>Key Features:</h4>
+                            <ol>
+                                <li><strong>Text Preprocessing:</strong> Tokenization, Stopword Removal, and Stemming.</li>
+                                <li><strong>Speech Synthesis:</strong> Convert text to speech using Text-to-Speech (TTS) technology.</li>
+                                <li><strong>Audio Processing:</strong> Audio compression, noise reduction, and audio enhancement.</li>
+                            </ol>
+                        </div>
+                        <div class="button-container">
+                            <a href="https://github.com/yourprofile" class="btn project-link">View Project</a>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <div class="container">
+            <h2 class="section-title">Contact Me</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h3>Location</h3>
+                            <p>lahore, Pakistan</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h3>Email</h3>
+                            <p>fayyazahmad481w@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fab fa-whatsapp"></i>
+                        <div>
+                            <h3>WhatsApp</h3>
+                            <p>(+92) 3079632007</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <div class="success-message" style="display: none;">
+                        <div class="success-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3>Message Sent Successfully!</h3>
+                        <p>Thank you for your message. I'll get back to you soon.</p>
+                    </div>
+                    <form id="contactForm" action="https://formsubmit.co/fayyazahmad481w@gmail.com" method="POST">
+                        <!-- FormSubmit.co configuration -->
+                        <input type="hidden" name="_subject" value="New message from Portfolio Website">
+                        <input type="hidden" name="_template" value="table">
+                        <input type="hidden" name="_captcha" value="false">
+                        <input type="hidden" name="_next" value="https://formsubmit.co/confirm">
+                        
+                        <div class="form-group">
+                            <input type="text" id="name" name="name" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" name="email" placeholder="Your Email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="subject" name="subject" placeholder="Subject" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="message" name="message" placeholder="Your Message" required></textarea>
+                        </div>
+                        <div style="text-align: right; margin-top: 20px;">
+                            <button type="submit" id="submit-btn" class="btn submit-btn" style="width: auto;">Send Message</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="copyright">
+                    <p>&copy; 2023 Ahmad Abdullah Ahmad. All Rights Reserved.</p>
+                </div>
+                <div class="social-links">
+                    <a href="https://www.linkedin.com/in/fayyaz-ahmad30211111/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://www.instagram.com/ahmad_69ccc?igsh=MWRpbXEyZGJ0NHY0Mg%3D%3D&utm_source=qr" target="_blank"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/three.min.js"></script>
+    <script src="js/html2pdf.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

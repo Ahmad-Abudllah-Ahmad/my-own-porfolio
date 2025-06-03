@@ -1,0 +1,67 @@
+AHMAD ABDULLAH AHMAD
+AI Engineer & Developer
+
+CONTACT INFORMATION
+Email: fayyazahmad481w@gmail.com
+Phone: (+92) 3079632007
+Location: Lahore, Pakistan
+LinkedIn: linkedin.com/in/fayyaz-ahmad30211111
+
+SUMMARY
+A passionate AI Engineer and Developer with expertise in machine learning, deep learning, and full-stack development. Experience in both theoretical AI concepts and practical implementation to create innovative solutions that leverage the power of artificial intelligence.
+
+EXPERIENCE
+Software Developer | 09/2021 - 12/2022
+Upwork, Florida, US (Remote)
+• Developed and implemented software solutions for various clients using Python, Django, and JavaScript.
+• Collaborated with clients to understand requirements and deliver high-quality software.
+• Maintained existing code and implemented new features based on client feedback.
+
+Python Developer | 03/2020 - 08/2021
+Fiverr, Lahore, Pakistan
+• Developed applications with focus on data processing, automation, and machine learning.
+• Worked with various libraries including Pandas, NumPy, and scikit-learn.
+• Implemented and maintained databases for web applications using SQL and NoSQL technologies.
+
+Full Stack Developer | 01/2019 - 02/2020
+UpStack, Massachusetts, US (Remote)
+• Developed full-stack applications using Python, Django, and React.
+• Worked on database design and implementation using PostgreSQL.
+• Implemented RESTful APIs for mobile and web applications.
+
+EDUCATION
+Bachelor of Computer Science | 2020 - 2024
+University of Management and Technology (UMT), Lahore
+Relevant coursework: Data Structures and Algorithms, Machine Learning, Artificial Intelligence, Database Systems, Web Development
+
+PROJECTS
+Voice to PPTx Generator (Using NLP) | 01/2022 - 05/2022
+An NLP-based system that automatically generates PowerPoint presentations from voice input by identifying key points and organizing content into slides.
+• Implemented speech-to-text conversion with high accuracy
+• Used NLP to extract key points and structure information
+• Ensured proper slide formatting and content management
+
+Automatic Door System with RFID | 03/2022 - 06/2022
+A secure door system that uses RFID technology to automatically lock and unlock doors.
+• Implemented contactless authentication using RFID tags/cards
+• Developed automated door control system with customizable settings
+• Enhanced security through authorized access management
+
+Book To Podcast Converter | 04/2025 - 05/2025
+An NLP-based system that converts text books into podcast audio format through natural language processing.
+• Implemented text preprocessing including tokenization and stopword removal
+• Integrated speech synthesis using Text-to-Speech technology
+• Applied audio processing for enhanced listening experience
+
+SKILLS
+• Python, Django, Flask, FastAPI
+• JavaScript, React, React Native, HTML/CSS
+• SQL, NoSQL
+• Machine Learning, Natural Language Processing
+• Three.js, LangChain, LlamaIndex, Haystack
+• Pinecone, Huggingface, Anthropic, Ollama, OpenRouter
+• Git, Docker, Vercel, Netlify
+
+LANGUAGES
+Native: Urdu
+Other: Punjabi
