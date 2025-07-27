@@ -1,351 +1,695 @@
-// Three.js Background Animation
+// Three.js Ripple Effect Background
 const initThreeJSBackground = () => {
     const canvas = document.getElementById('bg-canvas');
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit for performance
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
-    // Neural Network Configuration
-    const networkConfig = {
-        layers: [8, 14, 12, 8, 6], // Number of neurons in each layer
-        neuronSize: 0.05,
-        neuronColor: 0x6c63ff,
-        activeNeuronColor: 0x00ffff,
-        connectionColor: 0x8884ff,
-        activeConnectionColor: 0x00ffff,
-        layerDistance: 1.2,
-        neuronSpacing: 0.4,
-        signalSpeed: 0.02, // Slower signal speed
-        neuronOpacity: 0.7,
-        connectionOpacity: 0.25,
-        activationThreshold: 0.65, // Threshold for neuron activation
-        connectionProbability: 0.6 // Probability of creating connections between neurons
-    };
+    // Mouse tracking
+    const mouse = { x: 0, y: 0 };
+    const prevMouse = { x: 0, y: 0 };
+    let currentWave = 0;
+    const maxWaves = 100;
     
-    // Create objects to store our neurons and connections
-    const neurons = [];
-    const connections = [];
-    const signals = [];
-    const neuronStates = [];
-    
-    // Create neuron material
-    const neuronMaterial = new THREE.MeshPhongMaterial({
-        color: networkConfig.neuronColor,
+    // Create ripple geometry and material
+    const rippleGeometry = new THREE.PlaneGeometry(0.3, 0.3);
+    const rippleMaterial = new THREE.MeshBasicMaterial({
         transparent: true,
-        opacity: networkConfig.neuronOpacity,
-        shininess: 80
+        opacity: 0,
+        color: 0x6c63ff
     });
     
-    // Create neuron geometry (reused for all neurons)
-    const neuronGeometry = new THREE.SphereGeometry(networkConfig.neuronSize, 16, 16);
-    
-    // Generate neurons for each layer
-    for (let layer = 0; layer < networkConfig.layers.length; layer++) {
-        const neuronsInLayer = networkConfig.layers[layer];
-        const layerNeurons = [];
-        const layerStates = [];
-        
-        // Calculate total height of this layer
-        const layerHeight = (neuronsInLayer - 1) * networkConfig.neuronSpacing;
-        const startY = -layerHeight / 2;
-        
-        // Create neurons for this layer
-        for (let i = 0; i < neuronsInLayer; i++) {
-            const neuron = new THREE.Mesh(neuronGeometry, neuronMaterial.clone());
-            neuron.position.x = layer * networkConfig.layerDistance - (networkConfig.layers.length * networkConfig.layerDistance) / 2.5;
-            neuron.position.y = startY + (i * networkConfig.neuronSpacing);
-            neuron.position.z = (Math.random() - 0.5) * 0.5;
-            scene.add(neuron);
-            layerNeurons.push(neuron);
-            layerStates.push({
-                active: false,
-                activationTime: 0,
-                initialColor: new THREE.Color(networkConfig.neuronColor),
-                targetColor: new THREE.Color(networkConfig.activeNeuronColor)
-            });
-        }
-        
-        neurons.push(layerNeurons);
-        neuronStates.push(layerStates);
+    // Create array of ripple meshes
+    const ripples = [];
+    for (let i = 0; i < maxWaves; i++) {
+        const ripple = new THREE.Mesh(rippleGeometry, rippleMaterial.clone());
+        ripple.position.set(0, 0, 0);
+        ripple.visible = false;
+        scene.add(ripple);
+        ripples.push(ripple);
     }
     
-    // Material for connections
-    const connectionMaterial = new THREE.LineBasicMaterial({
-        color: networkConfig.connectionColor,
-        transparent: true,
-        opacity: networkConfig.connectionOpacity
-    });
-    
-    // Create connections between layers
-    for (let layer = 0; layer < networkConfig.layers.length - 1; layer++) {
-        const layerConnections = [];
-        
-        for (let i = 0; i < neurons[layer].length; i++) {
-            const neuronConnections = [];
-            
-            for (let j = 0; j < neurons[layer + 1].length; j++) {
-                // Only create connections between some neurons for a more realistic look
-                if (Math.random() < networkConfig.connectionProbability) {
-                    const from = neurons[layer][i].position;
-                    const to = neurons[layer + 1][j].position;
-                    
-                    // Create a slightly curved connection path for more visual interest
-                    const midPoint = new THREE.Vector3(
-                        (from.x + to.x) / 2,
-                        (from.y + to.y) / 2,
-                        (from.z + to.z) / 2 + (Math.random() - 0.5) * 0.2
-                    );
-                    
-                    // Create a smooth curve for the connection
-                    const curve = new THREE.QuadraticBezierCurve3(  
-                        new THREE.Vector3(from.x, from.y, from.z),
-                        midPoint,
-                        new THREE.Vector3(to.x, to.y, to.z)
-                    );
-                    
-                    // Create points along the curve
-                    const curvePoints = curve.getPoints(10);
-                    const points = new THREE.BufferGeometry().setFromPoints(curvePoints);
-                    
-                    const line = new THREE.Line(points, connectionMaterial.clone());
-                    scene.add(line);
-                    
-                    neuronConnections.push({
-                        line: line,
-                        curve: curve,
-                        targetNeuron: { layer: layer + 1, index: j },
-                        active: false,
-                        signal: null,
-                        weight: Math.random() * 0.7 + 0.3 // Random connection weight (0.3-1.0)
-                    });
-                }
-            };
-            
-            layerConnections.push(neuronConnections);
-        }
-        
-        connections.push(layerConnections);
-    }
-    
-    // Create a signal geometry/material to animate data flow
-    const signalGeometry = new THREE.SphereGeometry(networkConfig.neuronSize * 0.4, 8, 8);
-    const signalMaterial = new THREE.MeshBasicMaterial({
-        color: networkConfig.activeNeuronColor,
-        transparent: true,
-        opacity: 0.8
-    });
-    
-    // Add lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-    scene.add(ambientLight);
-    
-    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight1.position.set(1, 1, 1);
-    scene.add(directionalLight1);
-    
-    const directionalLight2 = new THREE.DirectionalLight(0x8884ff, 0.3);
-    directionalLight2.position.set(-1, -1, -1);
-    scene.add(directionalLight2);
-    
-    // Camera position
-    camera.position.z = 5;
-    
-    // Mouse movement effect
-    let mouseX = 0;
-    let mouseY = 0;
-    
-    const mouseMoveHandler = (event) => {
-        mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-        mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+    // Shader uniforms
+    const uniforms = {
+        uTime: { value: 0 },
+        uMouse: { value: new THREE.Vector2(0, 0) },
+        uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+        uRipples: { value: new Array(maxWaves).fill().map(() => new THREE.Vector4(0, 0, 0, 0)) }
     };
     
-    window.addEventListener('mousemove', mouseMoveHandler);
-    
-    // Function to create a new signal in the network
-    const createSignal = () => {
-        // Pick multiple random neurons in the first layer to activate (more realistic)
-        const neuronsToActivate = Math.floor(Math.random() * 3) + 1; // 1-3 neurons activate at once
-        
-        for (let i = 0; i < neuronsToActivate; i++) {
-            const randomNeuronIndex = Math.floor(Math.random() * neurons[0].length);
-            // Add slight delay between neuron activations
-            setTimeout(() => {
-                activateNeuron(0, randomNeuronIndex);
-            }, i * 150); // Stagger the activations
+    // Vertex shader
+    const vertexShader = `
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
-    };
+    `;
     
-    // Function to activate a neuron
-    const activateNeuron = (layer, index) => {
-        if (layer >= networkConfig.layers.length) return;
+    // Fragment shader with ripple effect
+    const fragmentShader = `
+        uniform float uTime;
+        uniform vec2 uMouse;
+        uniform vec2 uResolution;
+        uniform vec4 uRipples[100];
         
-        const state = neuronStates[layer][index];
-        // Only activate if not already active
-        if (!state.active) {
-            state.active = true;
-            state.activationTime = Date.now();
+        varying vec2 vUv;
+        
+        void main() {
+            vec2 uv = vUv;
+            vec3 color = vec3(0.0);
             
-            // If there are connections from this neuron, activate some of them (not all)
-            if (layer < networkConfig.layers.length - 1 && connections[layer] && connections[layer][index]) {
-                const neuronConnections = connections[layer][index];
+            // Background gradient
+            vec3 bg1 = vec3(0.1, 0.1, 0.2); // Dark blue
+            vec3 bg2 = vec3(0.05, 0.05, 0.15); // Darker blue
+            vec3 bgColor = mix(bg1, bg2, uv.y);
+            
+            // Add some animated particles
+            for (int i = 0; i < 20; i++) {
+                float fi = float(i);
+                vec2 pos = vec2(
+                    sin(uTime * 0.5 + fi * 0.5) * 0.3 + 0.5,
+                    cos(uTime * 0.3 + fi * 0.7) * 0.3 + 0.5 + sin(uTime * 0.2 + fi) * 0.1
+                );
                 
-                // Selective activation - not all connections fire (more like real neurons)
-                neuronConnections.forEach(connection => {
-                    // Only process the signal if the connection weight exceeds the activation threshold
-                    if (connection.weight > networkConfig.activationThreshold) {
-                        // Create signal with a small delay for more natural flow
-                        setTimeout(() => {
-                            const signal = new THREE.Mesh(signalGeometry, signalMaterial.clone());
-                            const fromPos = neurons[layer][index].position;
-                            signal.position.set(fromPos.x, fromPos.y, fromPos.z);
-                            scene.add(signal);
-                            
-                            const targetNeuron = connection.targetNeuron;
-                            
-                            signals.push({
-                                mesh: signal,
-                                curve: connection.curve,
-                                progress: 0,
-                                speed: networkConfig.signalSpeed * (0.7 + Math.random() * 0.3), // Slight randomness in speed
-                                targetNeuron: targetNeuron,
-                                connection: connection
-                            });
-                        }, Math.random() * 100); // Random delay up to 100ms for more natural signal propagation
-                    }
-                });
+                float dist = distance(uv, pos);
+                float size = 0.002 + sin(uTime + fi) * 0.001;
+                float alpha = smoothstep(size + 0.005, size, dist);
+                
+                vec3 particleColor = vec3(0.4, 0.3, 1.0) * alpha * 0.3;
+                bgColor += particleColor;
             }
+            
+            // Add ripples
+            for (int i = 0; i < 100; i++) {
+                vec4 ripple = uRipples[i];
+                if (ripple.w > 0.0) { // If ripple is active
+                    vec2 center = ripple.xy;
+                    float time = ripple.z;
+                    float intensity = ripple.w;
+                    
+                    float dist = distance(uv, center);
+                    float rippleRadius = time * 0.5;
+                    
+                    // Create ripple wave
+                    float wave = sin((dist - rippleRadius) * 20.0) * exp(-dist * 5.0) * intensity;
+                    wave *= smoothstep(0.0, 0.1, time) * smoothstep(1.0, 0.8, time);
+                    
+                    // Add color to ripple
+                    vec3 rippleColor = vec3(0.4, 0.3, 1.0) * wave * 0.5;
+                    bgColor += rippleColor;
+                }
+            }
+            
+            // Add subtle noise
+            float noise = fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453);
+            bgColor += noise * 0.02;
+            
+            gl_FragColor = vec4(bgColor, 1.0);
+        }
+    `;
+    
+    // Create background plane with shader
+    const backgroundGeometry = new THREE.PlaneGeometry(2, 2);
+    const backgroundMaterial = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader
+    });
+    
+    const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
+    scene.add(backgroundMesh);
+    
+    // Mouse tracking
+    const mouseMoveHandler = (event) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = (event.clientX - rect.left) / rect.width;
+        mouse.y = 1.0 - (event.clientY - rect.top) / rect.height;
+        
+        // Update mouse uniform
+        uniforms.uMouse.value.set(mouse.x, mouse.y);
+        
+        // Create ripples on mouse movement
+        if (Math.abs(mouse.x - prevMouse.x) > 0.01 || Math.abs(mouse.y - prevMouse.y) > 0.01) {
+            createRipple(mouse.x, mouse.y);
+            prevMouse.x = mouse.x;
+            prevMouse.y = mouse.y;
         }
     };
     
-    // Create new signals regularly, but at a slower pace
-    setInterval(createSignal, 1200); // Increased interval for slower overall activity
+    // Touch events for mobile
+    const touchMoveHandler = (event) => {
+        event.preventDefault();
+        const touch = event.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = (touch.clientX - rect.left) / rect.width;
+        mouse.y = 1.0 - (touch.clientY - rect.top) / rect.height;
+        
+        uniforms.uMouse.value.set(mouse.x, mouse.y);
+        createRipple(mouse.x, mouse.y);
+    };
     
-    const clock = new THREE.Clock();
+    document.addEventListener('mousemove', mouseMoveHandler);
+    document.addEventListener('touchmove', touchMoveHandler, { passive: false });
+    document.addEventListener('touchstart', (event) => {
+        const touch = event.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = (touch.clientX - rect.left) / rect.width;
+        mouse.y = 1.0 - (touch.clientY - rect.top) / rect.height;
+        createRipple(mouse.x, mouse.y);
+    });
+    
+    // Ripple management
+    const activeRipples = [];
+    
+    const createRipple = (x, y) => {
+        const ripple = {
+            x: x,
+            y: y,
+            time: 0,
+            intensity: 1.0,
+            index: currentWave % maxWaves
+        };
+        
+        activeRipples.push(ripple);
+        currentWave++;
+    };
+    
+    // Create automatic ripples
+    setInterval(() => {
+        if (Math.random() > 0.7) {
+            createRipple(Math.random(), Math.random());
+        }
+    }, 2000);
     
     // Animation loop
     const animate = () => {
         requestAnimationFrame(animate);
         
-        const delta = clock.getDelta();
-        const time = clock.getElapsedTime();
+        const time = performance.now() * 0.001;
+        uniforms.uTime.value = time;
         
-        // Update neuron states with smoother transitions
-        for (let layer = 0; layer < neuronStates.length; layer++) {
-            for (let i = 0; i < neuronStates[layer].length; i++) {
-                const state = neuronStates[layer][i];
-                const neuron = neurons[layer][i];
-                
-                if (state.active) {
-                    const timeSinceActivation = Date.now() - state.activationTime;
-                    const activationDuration = 800; // Longer activation time for slower processing
-                    
-                    if (timeSinceActivation > activationDuration) {
-                        // Smooth transition back to inactive state
-                        state.active = false;
-                        neuron.material.color.copy(state.initialColor);
-                    } else {
-                        // Smooth pulse effect using easing function
-                        const progress = timeSinceActivation / activationDuration;
-                        const eased = 0.5 - 0.5 * Math.cos(progress * Math.PI); // Smoother easing
-                        
-                        // More gradual color transition
-                        neuron.material.color.copy(state.initialColor).lerp(state.targetColor, eased);
-                        
-                        // Smoother scale pulsing
-                        const pulseAmount = Math.sin(progress * Math.PI);
-                        const scale = 1 + 0.25 * pulseAmount;
-                        neuron.scale.set(scale, scale, scale);
-                        
-                        // Increase brightness briefly during activation
-                        neuron.material.emissive = new THREE.Color(state.targetColor).multiplyScalar(pulseAmount * 0.3);
-                    }
-                } else {
-                    // Reset scale
-                    neuron.scale.set(1, 1, 1);
-                    neuron.material.emissive = new THREE.Color(0, 0, 0);
-                    
-                    // Add subtle, slower breathing effect to inactive neurons based on their position
-                    // This creates a more organic, wave-like pattern through the network
-                    const breatheSpeed = 0.8; // Slower breathing
-                    const breatheOffset = layer * 0.5 + i * 0.2; // Offset based on position for wave effect
-                    const breatheAmount = (Math.sin(time * breatheSpeed + breatheOffset) + 1) / 2 * 0.15;
-                    
-                    neuron.material.color.setRGB(
-                        state.initialColor.r + breatheAmount,
-                        state.initialColor.g + breatheAmount,
-                        state.initialColor.b + breatheAmount
-                    );
-                }
-            }
-        }
-        
-        // Update signals with smoother path following along the curves
-        for (let i = signals.length - 1; i >= 0; i--) {
-            const signal = signals[i];
-            signal.progress += signal.speed;
+        // Update ripples
+        activeRipples.forEach((ripple, index) => {
+            ripple.time += 0.016; // ~60fps
+            ripple.intensity *= 0.98; // Fade out
             
-            if (signal.progress >= 1) {
-                // Signal reached its destination
-                scene.remove(signal.mesh);
-                signals.splice(i, 1);
-                
-                // Only activate the target neuron with a probability based on connection weight
-                // This simulates how real neurons don't always fire even with input
-                if (Math.random() < signal.connection.weight) {
-                    // Add a slight delay before activating the next neuron (more realistic)
-                    setTimeout(() => {
-                        activateNeuron(signal.targetNeuron.layer, signal.targetNeuron.index);
-                    }, Math.random() * 50); // Small random delay
-                }
-            } else {
-                // Update signal position using the curve for a smoother path
-                if (signal.curve) {
-                    const position = signal.curve.getPointAt(signal.progress);
-                    signal.mesh.position.copy(position);
-                }
-                
-                // Make the connection line glow as the signal passes with a smoother falloff
-                if (signal.connection) {
-                    // Create a smooth bell curve for the glow intensity
-                    const intensity = Math.pow(Math.sin(signal.progress * Math.PI), 2) * 0.8;
-                    
-                    // Apply the glow effect to the line
-                    signal.connection.line.material.color.set(networkConfig.connectionColor)
-                        .lerp(new THREE.Color(networkConfig.activeConnectionColor), intensity);
-                    signal.connection.line.material.opacity = networkConfig.connectionOpacity + intensity * 0.6;
-                    
-                    // Scale the signal slightly based on progress to create a pulse effect
-                    const pulseScale = 1 + 0.3 * Math.sin(signal.progress * Math.PI * 2);
-                    signal.mesh.scale.set(pulseScale, pulseScale, pulseScale);
-                }
+            // Update uniform
+            uniforms.uRipples.value[ripple.index] = new THREE.Vector4(
+                ripple.x,
+                ripple.y,
+                ripple.time,
+                ripple.intensity
+            );
+            
+            // Remove dead ripples
+            if (ripple.intensity < 0.01 || ripple.time > 2.0) {
+                uniforms.uRipples.value[ripple.index] = new THREE.Vector4(0, 0, 0, 0);
+                activeRipples.splice(index, 1);
             }
-        }
-        
-        // Gentle rotation of the entire network
-        scene.rotation.y = Math.sin(time * 0.1) * 0.1;
-        scene.rotation.x = Math.sin(time * 0.15) * 0.05;
-        
-        // Mouse influence
-        scene.rotation.y += (mouseX * 0.01 - scene.rotation.y) * 0.02;
-        scene.rotation.x += (-mouseY * 0.01 - scene.rotation.x) * 0.02;
+        });
         
         renderer.render(scene, camera);
     };
     
-    animate();
-    
     // Handle window resize
     const handleResize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
     };
     
     window.addEventListener('resize', handleResize);
+    animate();
 };
+
+// Card Carousel Implementation
+const initCardCarousel = () => {
+    const carousel = document.querySelector('.card-carousel');
+    const cards = document.querySelectorAll('.carousel-card');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    if (!carousel || cards.length === 0) return;
+    
+    let currentIndex = 0;
+    const totalCards = cards.length;
+    let autoplayInterval;
+    let startX = 0;
+    let isDragging = false;
+    
+    // Calculate dynamic heights for each card
+    const calculateCardHeights = () => {
+        let maxHeight = 650; // minimum height
+        
+        cards.forEach(card => {
+            // Temporarily make card visible and reset transforms to measure content
+            const originalTransform = card.style.transform;
+            const originalOpacity = card.style.opacity;
+            
+            card.style.transform = 'none';
+            card.style.opacity = '1';
+            card.style.position = 'static';
+            card.style.width = '420px';
+            
+            // Measure the natural height
+            const naturalHeight = card.scrollHeight;
+            
+            // Apply constraints
+            const finalHeight = Math.min(Math.max(naturalHeight, 650), 900);
+            maxHeight = Math.max(maxHeight, finalHeight);
+            
+            // Restore original positioning and set final height
+            card.style.position = 'absolute';
+            card.style.height = `${finalHeight}px`;
+            card.style.transform = originalTransform;
+            card.style.opacity = originalOpacity;
+        });
+        
+        // Adjust carousel container height to accommodate the tallest card
+        carousel.style.minHeight = `${maxHeight + 80}px`;
+    };
+    
+    // Initial setup with delay for smooth loading
+    setTimeout(() => {
+        calculateCardHeights();
+        updateCarousel(0);
+    }, 100);
+
+    const updateCarousel = (index) => {
+        const containerWidth = carousel.offsetWidth;
+        const cardWidth = 420; // Updated to match new CSS
+        const spacing = 90; // Increased spacing for larger cards
+        
+        // Update cards positioning and classes
+        cards.forEach((card, i) => {
+            card.classList.remove('active', 'prev', 'next');
+            
+            // Calculate position relative to active card
+            const distance = i - index;
+            const translateX = containerWidth / 2 + (distance * (cardWidth + spacing));
+            
+            // Set position with smooth transition
+            card.style.left = `${translateX}px`;
+            
+            // Add appropriate class based on position
+            if (i === index) {
+                card.classList.add('active');
+            } else if (i === index - 1 || (index === 0 && i === totalCards - 1)) {
+                card.classList.add('prev');
+            } else if (i === index + 1 || (index === totalCards - 1 && i === 0)) {
+                card.classList.add('next');
+            }
+        });
+        
+        // Pagination dots removed as requested
+    };
+    
+    // Go to next slide
+    const nextSlide = () => {
+        currentIndex = (currentIndex + 1) % totalCards;
+        updateCarousel(currentIndex);
+    };
+    
+    // Go to previous slide
+    const prevSlide = () => {
+        currentIndex = (currentIndex - 1 + totalCards) % totalCards;
+        updateCarousel(currentIndex);
+    };
+    
+    // Go to specific slide
+    const goToSlide = (index) => {
+        currentIndex = index;
+        updateCarousel(currentIndex);
+    };
+    
+    // Auto-play functionality
+    const startAutoplay = () => {
+        autoplayInterval = setInterval(nextSlide, 4000); // 4 second delay
+    };
+    
+    const stopAutoplay = () => {
+        if (autoplayInterval) {
+            clearInterval(autoplayInterval);
+        }
+    };
+    
+    // Event listeners
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            nextSlide();
+            stopAutoplay();
+            setTimeout(startAutoplay, 1000); // Restart autoplay after 1 second
+        });
+    }
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            prevSlide();
+            stopAutoplay();
+            setTimeout(startAutoplay, 1000); // Restart autoplay after 1 second
+        });
+    }
+    
+    // Pagination dots
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            goToSlide(index);
+            stopAutoplay();
+            setTimeout(startAutoplay, 1000); // Restart autoplay after 1 second
+        });
+    });
+    
+    // Pause autoplay on hover
+    carousel.addEventListener('mouseenter', stopAutoplay);
+    carousel.addEventListener('mouseleave', startAutoplay);
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+            prevSlide();
+            stopAutoplay();
+            setTimeout(startAutoplay, 1000);
+        } else if (e.key === 'ArrowRight') {
+            nextSlide();
+            stopAutoplay();
+            setTimeout(startAutoplay, 1000);
+        }
+    });
+    
+    // Touch/swipe support for mobile
+    let endX = 0;
+    
+    carousel.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        stopAutoplay();
+    });
+    
+    carousel.addEventListener('touchend', (e) => {
+        endX = e.changedTouches[0].clientX;
+        const diffX = startX - endX;
+        
+        if (Math.abs(diffX) > 50) { // Minimum swipe distance
+            if (diffX > 0) {
+                nextSlide(); // Swipe left - next slide
+            } else {
+                prevSlide(); // Swipe right - previous slide
+            }
+        }
+        
+        setTimeout(startAutoplay, 1000);
+    });
+    
+    // Initialize carousel
+    updateCarousel(0);
+    startAutoplay();
+};
+
+// Hover Expand Skills Component
+const initHoverExpandSkills = () => {
+    const container = document.getElementById('digitalSkills');
+    const skillItems = document.querySelectorAll('.skill-expand-item');
+    
+    if (!container || skillItems.length === 0) return;
+    
+    let activeItem = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isMobile = window.innerWidth <= 768;
+    
+    // Update mobile detection on resize
+    const handleResize = () => {
+        const wasMobile = isMobile;
+        isMobile = window.innerWidth <= 768;
+        
+        if (wasMobile !== isMobile) {
+            // Reset active states when switching between mobile/desktop
+            skillItems.forEach(item => item.classList.remove('active'));
+            activeItem = null;
+        }
+    };
+    
+    // Handle mouse events for desktop
+    const handleMouseEnter = (item) => {
+        if (isMobile) return;
+        
+        skillItems.forEach(other => {
+            if (other !== item) {
+                other.classList.remove('active');
+            }
+        });
+        
+        item.classList.add('active');
+        activeItem = item;
+        
+        // Add subtle animation to other items
+        skillItems.forEach(other => {
+            if (other !== item) {
+                other.style.opacity = '0.7';
+            }
+        });
+    };
+    
+    const handleMouseLeave = () => {
+        if (isMobile) return;
+        
+        skillItems.forEach(item => {
+            item.classList.remove('active');
+            item.style.opacity = '1';
+        });
+        activeItem = null;
+    };
+    
+    // Handle click/touch events for mobile
+    const handleClick = (item, event) => {
+        if (!isMobile) return;
+        
+        event.preventDefault();
+        
+        if (activeItem === item) {
+            // If already active, deactivate
+            item.classList.remove('active');
+            activeItem = null;
+        } else {
+            // Deactivate all others and activate this one
+            skillItems.forEach(other => other.classList.remove('active'));
+            item.classList.add('active');
+            activeItem = item;
+        }
+    };
+    
+    // Handle touch events for better mobile interaction
+    const handleTouchStart = (event) => {
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+    };
+    
+    const handleTouchEnd = (item, event) => {
+        const touchEndX = event.changedTouches[0].clientX;
+        const touchEndY = event.changedTouches[0].clientY;
+        
+        const deltaX = Math.abs(touchEndX - touchStartX);
+        const deltaY = Math.abs(touchEndY - touchStartY);
+        
+        // Only treat as tap if minimal movement
+        if (deltaX < 10 && deltaY < 10) {
+            handleClick(item, event);
+        }
+    };
+    
+    // Initialize event listeners
+    skillItems.forEach(item => {
+        // Mouse events for desktop
+        item.addEventListener('mouseenter', () => handleMouseEnter(item));
+        
+        // Touch events for mobile
+        item.addEventListener('touchstart', handleTouchStart, { passive: true });
+        item.addEventListener('touchend', (e) => handleTouchEnd(item, e));
+        
+        // Click fallback
+        item.addEventListener('click', (e) => handleClick(item, e));
+        
+        // Focus events for keyboard navigation
+        item.addEventListener('focus', () => {
+            if (!isMobile) handleMouseEnter(item);
+        });
+        
+        // Make items focusable for accessibility
+        item.setAttribute('tabindex', '0');
+        
+        // Add smooth staggered animation on load
+        const index = Array.from(skillItems).indexOf(item);
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            item.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+        }, index * 100 + 200);
+    });
+    
+    // Container mouse leave event
+    container.addEventListener('mouseleave', handleMouseLeave);
+    
+    // Handle keyboard navigation
+    container.addEventListener('keydown', (event) => {
+        if (!activeItem) return;
+        
+        const currentIndex = Array.from(skillItems).indexOf(activeItem);
+        let newIndex = currentIndex;
+        
+        switch (event.key) {
+            case 'ArrowLeft':
+                newIndex = currentIndex > 0 ? currentIndex - 1 : skillItems.length - 1;
+                break;
+            case 'ArrowRight':
+                newIndex = currentIndex < skillItems.length - 1 ? currentIndex + 1 : 0;
+                break;
+            case 'Escape':
+                handleMouseLeave();
+                return;
+        }
+        
+        if (newIndex !== currentIndex) {
+            event.preventDefault();
+            skillItems[newIndex].focus();
+            handleMouseEnter(skillItems[newIndex]);
+        }
+    });
+    
+    // Window resize handler
+    window.addEventListener('resize', handleResize);
+    
+    // Intersection Observer for performance
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Component is visible, enable interactions
+                container.style.pointerEvents = 'auto';
+            } else {
+                // Component is not visible, disable interactions for performance
+                container.style.pointerEvents = 'none';
+                if (activeItem) handleMouseLeave();
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    observer.observe(container);
+};
+
+// Adaptive Navbar Functionality
+const initAdaptiveNavbar = () => {
+    const navbar = document.querySelector('.navbar');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    const logo = document.querySelector('.logo span');
+    const hamburgerBars = document.querySelectorAll('.hamburger .bar');
+    const downloadBtn = document.querySelector('.download-cv .btn');
+    
+    if (!navbar) return;
+    
+    // Define sections with their background types
+    const sections = [
+        { id: 'home', type: 'dark' },
+        { id: 'about', type: 'dark' },
+        { id: 'skills', type: 'dark' },
+        { id: 'experience', type: 'dark' },
+        { id: 'education', type: 'dark' },
+        { id: 'projects', type: 'dark' },
+        { id: 'contact', type: 'dark' }
+    ];
+    
+    const updateNavbarStyle = (backgroundType) => {
+        // Remove existing classes
+        navbar.classList.remove('navbar-light', 'navbar-dark');
+        
+        if (backgroundType === 'light') {
+            // Light background - use dark/blue text
+            navbar.classList.add('navbar-light');
+            
+            // Update text colors
+            if (logo) logo.style.color = 'var(--primary-accent)';
+            navLinks.forEach(link => {
+                link.style.color = 'var(--primary-accent)';
+            });
+            hamburgerBars.forEach(bar => {
+                bar.style.background = 'var(--primary-accent)';
+            });
+            
+            // Update navbar background
+            navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            navbar.style.backdropFilter = 'blur(20px)';
+            navbar.style.borderBottom = '1px solid rgba(63, 81, 181, 0.1)';
+            
+        } else {
+            // Dark background - use white text with blue accents
+            navbar.classList.add('navbar-dark');
+            
+            // Update text colors
+            if (logo) logo.style.color = '#ffffff';
+            navLinks.forEach(link => {
+                link.style.color = '#ffffff';
+            });
+            hamburgerBars.forEach(bar => {
+                bar.style.background = '#ffffff';
+            });
+            
+            // Update navbar background
+            navbar.style.background = 'rgba(0, 0, 0, 0.1)';
+            navbar.style.backdropFilter = 'blur(20px)';
+            navbar.style.borderBottom = '1px solid rgba(255, 255, 255, 0.1)';
+        }
+    };
+    
+    // Check current section and update navbar
+    const checkCurrentSection = () => {
+        const scrollPosition = window.scrollY + 100; // Offset for navbar height
+        
+        let currentSection = sections[0]; // Default to first section
+        
+        sections.forEach(section => {
+            const element = document.getElementById(section.id);
+            if (element) {
+                const rect = element.getBoundingClientRect();
+                const elementTop = rect.top + window.scrollY;
+                const elementBottom = elementTop + rect.height;
+                
+                if (scrollPosition >= elementTop && scrollPosition < elementBottom) {
+                    currentSection = section;
+                }
+            }
+        });
+        
+        updateNavbarStyle(currentSection.type);
+    };
+    
+    // Initial check
+    checkCurrentSection();
+    
+    // Update on scroll
+    let ticking = false;
+    const onScroll = () => {
+        if (!ticking) {
+            requestAnimationFrame(() => {
+                checkCurrentSection();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    };
+    
+    window.addEventListener('scroll', onScroll);
+};
+
+// Initialize all components when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    initThreeJSBackground();
+    initCardCarousel();
+    initHoverExpandSkills();
+    initAdaptiveNavbar();
+});
 
 // Navbar Scroll Effect
 const initNavbarScroll = () => {
@@ -602,6 +946,116 @@ const initCVDownload = () => {
     });
 };
 
+// Projects Slideshow Functionality
+const initProjectsSlideshow = () => {
+    console.log("Starting slideshow initialization");
+    
+    // Get all slides and dots
+    const slides = document.querySelectorAll(".project-slide");
+    const dots = document.querySelectorAll(".dot");
+    const prevButton = document.querySelector('.prev');
+    const nextButton = document.querySelector('.next');
+    
+    console.log(`Found ${slides.length} slides and ${dots.length} dots`);
+    
+    if (!slides.length || !dots.length) {
+        console.error("Missing slides or dots, cannot initialize slideshow");
+        return;
+    }
+    
+    let currentSlideIndex = 0;
+    let slideTimer = null;
+    const slideInterval = 5000; // Time between automatic slide changes (5 seconds)
+    
+    // Function to show a specific slide
+    const showSlide = (index) => {
+        // Validate index
+        if (index < 0) index = slides.length - 1;
+        if (index >= slides.length) index = 0;
+        
+        // Update current index
+        currentSlideIndex = index;
+        
+        console.log(`Showing slide ${currentSlideIndex + 1} of ${slides.length}`);
+        
+        // Hide all slides and remove active classes
+        slides.forEach((slide, i) => {
+            slide.style.display = "none";
+            slide.classList.remove("active", "fade");
+            dots[i].classList.remove("active-dot");
+        });
+        
+        // Show the current slide and add active class
+        slides[currentSlideIndex].style.display = "block";
+        slides[currentSlideIndex].classList.add("active", "fade");
+        dots[currentSlideIndex].classList.add("active-dot");
+        
+        // Reset timer for automatic slideshow
+        clearTimeout(slideTimer);
+        startAutoSlide();
+    };
+    
+    // Function to start automatic slideshow
+    const startAutoSlide = () => {
+        clearTimeout(slideTimer); // Clear any existing timer
+        slideTimer = setTimeout(() => {
+            console.log("Auto advancing to next slide");
+            nextSlide();
+        }, slideInterval);
+        console.log("Auto slide timer started");
+    };
+    
+    // Function to show the next slide
+    const nextSlide = () => {
+        showSlide(currentSlideIndex + 1);
+    };
+    
+    // Function to show the previous slide
+    const prevSlide = () => {
+        showSlide(currentSlideIndex - 1);
+    };
+    
+    // Add event listeners to navigation buttons
+    if (prevButton) {
+        prevButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log("Previous button clicked");
+            prevSlide();
+        });
+    }
+    
+    if (nextButton) {
+        nextButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log("Next button clicked");
+            nextSlide();
+        });
+    }
+    
+    // Add event listeners to dots
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+            console.log(`Dot ${i + 1} clicked`);
+            showSlide(i);
+        });
+    });
+    
+    // Initialize the slideshow with the first slide
+    console.log("Showing first slide");
+    showSlide(0);
+    
+    // Start automatic slideshow
+    startAutoSlide();
+    
+    // For debugging - log all slides
+    slides.forEach((slide, i) => {
+        console.log(`Slide ${i + 1} HTML:`, slide.innerHTML.substring(0, 50) + '...');
+    });
+    
+    // Make sure the slideshow is visible
+    document.querySelector('.projects-slideshow-container').style.display = 'block';
+};
+
 // Initialize all functions when the DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     initLoadingAnimation();
@@ -612,6 +1066,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initSmoothScroll();
     initScrollAnimations();
     initCVDownload();
+    initProjectsSlideshow(); // Initialize the projects slideshow
     
     // Hide loading screen if it takes too long
     setTimeout(() => {
